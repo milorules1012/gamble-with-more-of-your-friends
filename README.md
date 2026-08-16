@@ -4,14 +4,19 @@
 
 A **BepInEx** mod for *Gamble With Your Friends* (Steam, **Unity Mono**) so the host can run lobbies above the default cap (default **12**, configurable **2–16**). It raises the **Steam lobby limit** and **Mirror** `NetworkManager.maxConnections` on the host machine.
 
-## TL;DR — install from archive
+> **Use this repository, not the upstream `agreenbeen/gamble-with-more-of-your-friends`.** This is a fork with a fix for a bug that silently disabled the Mirror `maxConnections` patch (see `memory.md`), and the release published upstream predates that fix and does not actually raise the player cap. Build from source here instead of installing the upstream release zip.
 
-1. Download **[GWYF-UNLIMITED-players.v0.1.zip](https://github.com/agreenbeen/gamble-with-more-of-your-friends/releases/download/0.1/GWYF-UNLIMITED-players.v0.1.zip)**.
-2. In Steam: *Gamble With Your Friends* → **Manage** → **Browse local files** (open the folder that contains **`Gamble With Your Friends.exe`**).
-3. Extract everything from the zip **into that folder** (merge / overwrite). You should see **`winhttp.dll`** next to the `.exe` and **`BepInEx\plugins\GwyfUnlimitedPlayers.dll`**.
-4. Launch the game. **Host-only:** whoever **hosts** the lobby uses this install; joiners do not need the mod.
+## TL;DR — build and install from source
 
-**Repository:** [github.com/agreenbeen/gamble-with-more-of-your-friends](https://github.com/agreenbeen/gamble-with-more-of-your-friends)
+No release zip is published from this fork yet, so build the plugin DLL yourself — it only takes the .NET SDK and a local copy of the game:
+
+1. Clone this repo: `git clone https://github.com/milorules1012/gamble-with-more-of-your-friends.git`
+2. Follow **[For developers (build from source)](#for-developers-build-from-source)** below to produce `build\GwyfUnlimitedPlayers.dll`.
+3. In Steam: *Gamble With Your Friends* → **Manage** → **Browse local files** (open the folder that contains **`Gamble With Your Friends.exe`**).
+4. Copy `build\GwyfUnlimitedPlayers.dll` into **`BepInEx\plugins\`** in that folder. If **`BepInEx\`** doesn't exist yet, install BepInEx 5.4.x first (see [`INSTALL.md`](INSTALL.md)), or run [`scripts/Pack-Dist.ps1`](scripts/Pack-Dist.ps1) to produce a full `dist/` folder (BepInEx + the mod) that you merge in as one drop.
+5. Launch the game. **Host-only:** whoever **hosts** the lobby uses this install; joiners do not need the mod.
+
+**Repository:** [github.com/milorules1012/gamble-with-more-of-your-friends](https://github.com/milorules1012/gamble-with-more-of-your-friends)
 
 ---
 
@@ -21,7 +26,7 @@ A **BepInEx** mod for *Gamble With Your Friends* (Steam, **Unity Mono**) so the 
 
 ### 1. Get the files
 
-Download from **[Releases](https://github.com/agreenbeen/gamble-with-more-of-your-friends/releases)** (or **[latest release](https://github.com/agreenbeen/gamble-with-more-of-your-friends/releases/latest)**). Pick the zip or archive you published: a **full** drop includes **BepInEx** plus the mod; a **plugin-only** drop is just the mod DLL.
+Check **[this fork's Releases](https://github.com/milorules1012/gamble-with-more-of-your-friends/releases)** first. If a release is published, pick the zip or archive: a **full** drop includes **BepInEx** plus the mod; a **plugin-only** drop is just the mod DLL. If no release is published yet, **build from source** instead (see [For developers](#for-developers-build-from-source)) — do not use the upstream `agreenbeen/gamble-with-more-of-your-friends` release, its build predates the `maxConnections` fix and won't actually raise the cap.
 
 If the release bundle was built as a full **`dist/`** layout, it should contain things like **`winhttp.dll`**, **`doorstop_config.ini`**, a **`BepInEx`** folder (with **`plugins`** and **`core`**), **`GwyfUnlimitedPlayers.dll`** under **`BepInEx\plugins\`**, and copies of **`INSTALL.md`** / **`QUICKSTART.txt`**. That is the easiest path: one folder to merge into the game.
 
@@ -80,7 +85,7 @@ You need the [.NET SDK](https://dotnet.microsoft.com/download) (6+ or **8+**) an
 
 ### Full install drop for Releases (`dist/`)
 
-To produce the same **overlay** you attach to **[GitHub Releases](https://github.com/agreenbeen/gamble-with-more-of-your-friends/releases)**, run [`scripts/Pack-Dist.ps1`](scripts/Pack-Dist.ps1) (with **`GWYF_MANAGED`** set as above). That refreshes **`dist/`** (gitignored): Doorstop + upstream **BepInEx 5.4.x** (when the runtime pack is present), the plugin under **`dist\BepInEx\plugins\`**, and docs **`INSTALL.md`**, **`VALIDATION.md`**, **`TARGETS.md`**, **`QUICKSTART.txt`**, **`thunderstore/manifest.json`**, etc. Zip **`dist/`** contents (or the whole tree) for upload.
+To produce the same **overlay** you attach to **[GitHub Releases](https://github.com/milorules1012/gamble-with-more-of-your-friends/releases)**, run [`scripts/Pack-Dist.ps1`](scripts/Pack-Dist.ps1) (with **`GWYF_MANAGED`** set as above). That refreshes **`dist/`** (gitignored): Doorstop + upstream **BepInEx 5.4.x** (when the runtime pack is present), the plugin under **`dist\BepInEx\plugins\`**, and docs **`INSTALL.md`**, **`VALIDATION.md`**, **`TARGETS.md`**, **`QUICKSTART.txt`**, **`thunderstore/manifest.json`**, etc. Zip **`dist/`** contents (or the whole tree) for upload.
 
 | `dist/` area | Contents |
 |--------------|----------|
