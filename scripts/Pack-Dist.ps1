@@ -1,11 +1,11 @@
 #Requires -Version 5.0
-# Syncs official BepInEx runtime (if missing), builds Release, refreshes dist/ (see README — dist is gitignored).
+# Syncs official BepInEx runtime (if missing), builds Release, refreshes dist/ (see README - dist is gitignored).
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 Set-Location $root
 $runtime = Join-Path $root "packaging\bepinex-runtime\winhttp.dll"
 if (-not (Test-Path $runtime)) {
-    Write-Host "packaging\bepinex-runtime\ not found — running Sync-BepInExRuntimePack.ps1"
+    Write-Host "packaging\bepinex-runtime\ not found - running Sync-BepInExRuntimePack.ps1"
     & (Join-Path $root "scripts\Sync-BepInExRuntimePack.ps1")
 }
 $managed = $env:GWYF_MANAGED
