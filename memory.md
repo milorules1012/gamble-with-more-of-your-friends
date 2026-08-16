@@ -43,10 +43,35 @@ BepInEx + Harmony mod for **Gamble With Your Friends** so the host can run lobbi
 
 | Done | Not done / verify locally |
 |------|---------------------------|
-| Plugin skeleton, config, Harmony wiring; Steam + Mirror cap patches | **In-game** validation per [`docs/VALIDATION.md`](docs/VALIDATION.md) (8 / 12 / 16 players, leave-rejoin) |
+| Plugin skeleton, config, Harmony wiring; Steam + Mirror cap patches | Full **multi-machine** validation per [`docs/VALIDATION.md`](docs/VALIDATION.md) (8 / 12 / 16 players, leave-rejoin) — only single-host smoke-tested so far |
 | **`dotnet build`** (Release) with .NET 8 + vendored **`lib/BepInEx/BepInEx.dll`** (5.4.23.5) | If `lib/BepInEx/BepInEx.dll` is missing, run [`scripts/FetchBepInExLibs.ps1`](scripts/FetchBepInExLibs.ps1) and commit the DLL if you want CI/clones to build without the script |
 | README, TARGETS, VALIDATION, LICENSE, thunderstore stub | Thunderstore **dependencies** (BepInEx pack name for this game community) if publishing |
 | | Optional **game-specific** patches if caps still enforced in `GoOnlineClient` / `LobbyManager` / UI (dnSpy on `Assembly-CSharp.dll`) |
+
+## 2026-08-16: fixed silent Harmony patch-discovery bug (not a game-update break)
+
+`NetworkManagerMaxConnectionsPatch.cs` put `[HarmonyPatch(...)]` only on the three individual
+patch methods (`Awake`/`StartHost`/`StartServer`), with no class-level `[HarmonyPatch]`. Turns out
+`Harmony.PatchAll()`'s auto-discovery only walks types that carry a **class-level** `[HarmonyPatch]`
+attribute — method-level-only attributes make `PatchAll()` skip the whole class silently (no
+exception, no log line; `AccessTools.DeclaredMethod` still resolves the targets fine if you check
+manually). Confirmed live via `Harmony.GetPatchedMethods()`: only the two Steam patches (which do
+use a class-level attribute, matching `SteamCreateLobbyPatch`/`SteamSetLobbyMemberLimitPatch`) were
+ever actually applied — **the Mirror `maxConnections` cap has never been raised, since the original
+commit**, independent of any game update. Verified against the current live game build (Unity
+6000.3.6, v1.0.32, fresh Steam install) that `Mirror.NetworkManager.Awake/StartHost/StartServer`
+and the Steamworks.NET signatures are all otherwise unchanged and match the existing patch targets
+exactly — so no game-side incompatibility was found.
+
+Fix: split into three separate `[HarmonyPatch(typeof(NetworkManager), "X")]`-annotated classes
+(one per target method), mirroring the already-working Steam patch shape. Rebuilt + redeployed to a
+live install; `Harmony.GetPatchedMethods()` now lists all 5 patches (confirmed via a temporary
+diagnostic log, since removed). The Steam lobby cap patch (`SteamMatchmaking.CreateLobby`) was
+confirmed live before and after the fix, correctly rewriting `cMaxMembers` 6 → 12 on lobby creation.
+Could not live-verify the Mirror side end-to-end (needs a second real Steam account/joiner — solo
+hosting in this environment never actually exercises `NetworkManager.StartHost()`'s connection cap
+in a way that's externally observable), so **still do the multi-machine test in
+[`docs/VALIDATION.md`](docs/VALIDATION.md) before calling this fully done**.
 
 ## Next steps for a resuming agent
 
