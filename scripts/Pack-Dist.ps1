@@ -17,5 +17,7 @@ Or set it to your ...\Gamble With Your Friends_Data\Managed folder, then re-run 
 "@
 }
 dotnet build .\GwyfUnlimitedPlayers.sln -c Release -p:GameManaged="$managed"
+Copy-Item (Join-Path $root "scripts\Install-GWYF.ps1") (Join-Path $root "dist\Install-GWYF.ps1") -Force
+Copy-Item (Join-Path $root "scripts\Install-GWYF.bat") (Join-Path $root "dist\Install-GWYF.bat") -Force
 Write-Host "dist layout:"
 Get-ChildItem -Path (Join-Path $root "dist") -Recurse | ForEach-Object { $_.FullName.Substring($root.Length + 1) }

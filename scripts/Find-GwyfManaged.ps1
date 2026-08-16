@@ -58,7 +58,7 @@ function Get-LibrarySteamAppsFromVdf([string]$steamRoot) {
     return $out | Select-Object -Unique
 }
 
-$steamRoots = @()
+$steamRoots = [System.Collections.Generic.List[string]]::new()
 foreach ($apps in (Get-SteamInstallPaths)) {
     [void]$steamRoots.Add((Split-Path $apps -Parent))
 }
